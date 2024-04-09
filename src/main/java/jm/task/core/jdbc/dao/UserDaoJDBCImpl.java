@@ -3,12 +3,15 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
-import java.sql.*;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-
     public UserDaoJDBCImpl() {
 
     }
@@ -21,7 +24,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 "  `age` INT NOT NULL,\n" +
                 "  PRIMARY KEY (`id`));";
 
-        try (Connection conn = Util.getConnection(); Statement statement = conn.createStatement()) {
+        try (Statement statement = Util.getConnection().createStatement()) {
             statement.execute(sql);
         } catch (SQLException e) {
             System.err.println("Message: " + e.getMessage());
@@ -31,7 +34,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public void dropUsersTable() {
         String sql = "DROP TABLE if exists `testdb`.`users`";
 
-        try (Connection conn = Util.getConnection(); Statement statement = conn.createStatement()) {
+        try (Statement statement = Util.getConnection().createStatement()) {
             statement.execute(sql);
         } catch (SQLException e) {
             System.err.println("Message: " + e.getMessage());
@@ -41,7 +44,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public void saveUser(String name, String lastName, byte age) {
         String sql = "INSERT INTO users (firstName, lastName, age) VALUES (?, ?, ?);";
 
-        try (Connection conn = Util.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = Util.getConnection().prepareStatement(sql)) {
             ps.setString(1, name);
             ps.setString(2, lastName);
             ps.setByte(3, age);
@@ -49,14 +52,14 @@ public class UserDaoJDBCImpl implements UserDao {
         } catch (SQLException e) {
             System.err.println("Message: " + e.getMessage());
         }
-        System.out.println("User с именем " + name + " был добавлен в БД");
     }
 
     public void removeUserById(long id) {
-        String sql = "DELETE FROM users WHERE id =" + id + ";";
+        String sql = "DELETE FROM users WHERE id = ?";
 
-        try (Connection conn = Util.getConnection(); Statement statement = conn.createStatement()) {
-            statement.execute(sql);
+        try (PreparedStatement ps = Util.getConnection().prepareStatement(sql)) {
+            ps.setLong(1, id);
+            ps.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Message: " + e.getMessage());
         }
@@ -67,7 +70,7 @@ public class UserDaoJDBCImpl implements UserDao {
         String sql = "SELECT * FROM users";
         List<User> users = new ArrayList<>();
 
-        try (Connection conn = Util.getConnection(); Statement statement = conn.createStatement()) {
+        try (Statement statement = Util.getConnection().createStatement()) {
             ResultSet resultSet = statement.executeQuery(sql);
 
             while (resultSet.next()) {
@@ -87,7 +90,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public void cleanUsersTable() {
         String sql = "TRUNCATE TABLE users";
 
-        try (Connection conn = Util.getConnection(); Statement statement = conn.createStatement()) {
+        try (Statement statement = Util.getConnection().createStatement()) {
             statement.execute(sql);
         } catch (SQLException e) {
             System.err.println("Message: " + e.getMessage());

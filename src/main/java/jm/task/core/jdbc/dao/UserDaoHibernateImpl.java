@@ -15,7 +15,6 @@ public class UserDaoHibernateImpl implements UserDao {
 
     }
 
-
     @Override
     public void createUsersTable() {
         String sql = "CREATE TABLE if not exists `testdb`.`users` (\n" +
@@ -30,7 +29,6 @@ public class UserDaoHibernateImpl implements UserDao {
             tx = session.beginTransaction();
             session.createNativeQuery(sql).executeUpdate();
             tx.commit();
-            System.out.println("Таблица создана");
         } catch (HibernateException e) {
             if (tx != null) {
                 tx.rollback();
@@ -65,7 +63,6 @@ public class UserDaoHibernateImpl implements UserDao {
             tx = session.beginTransaction();
             session.persist(user);
             tx.commit();
-            System.out.println("User с именем " + name + " был добавлен в БД");
         } catch (HibernateException e) {
             if (tx != null) {
                 tx.rollback();
